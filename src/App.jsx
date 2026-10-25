@@ -107,6 +107,7 @@ export default function App() {
           <Disc3 size={26} className={player.playing ? 'spin-slow' : ''} />
           <span>shr<b>music</b></span>
         </a>
+        <span className="version" title={`shrmusic v${__APP_VERSION__}`}>v{__APP_VERSION__}</span>
 
         <label className="search">
           <Search size={17} />

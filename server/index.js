@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url'
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const configFile = path.join(projectDir, 'shrmusic.config.json')
 const PORT = Number(process.env.PORT) || 4321
+const { version } = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'))
 
 const AUDIO_EXT = new Set(['.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.oga', '.opus', '.aiff', '.aif', '.wma', '.webm'])
 const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif'])
@@ -265,6 +266,7 @@ const lanAddresses = () =>
 
 app.listen(PORT, '0.0.0.0', () => {
   const label = process.env.NODE_ENV === 'production' ? 'app' : 'api'
+  console.log(`[shrmusic] v${version}`)
   console.log(`[shrmusic] ${label} on http://localhost:${PORT}`)
   for (const ip of lanAddresses()) console.log(`[shrmusic] ${label} on http://${ip}:${PORT} (network)`)
   console.log(`[shrmusic] root: ${rootDir()}  match: ${config.match || '(all audio files)'}`)
