@@ -14,7 +14,8 @@ const albumFromHash = () => {
 
 export default function App() {
   const [toasts, setToasts] = useState([])
-  const [freshIds, setFreshIds] = useState(() => new Set())
+  const [addedIds, setAddedIds] = useState(() => new Set())
+  const [downloaded, setDownloaded] = useState(() => new Set())
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState('name')
   const [openId, setOpenId] = useState(albumFromHash)
@@ -23,7 +24,7 @@ export default function App() {
   const closeSettings = useCallback(() => setShowSettings(false), [])
 
   const onAdded = useCallback((added) => {
-    setFreshIds((s) => new Set([...s, ...added.map((a) => a.album)]))
+    setAddedIds((s) => new Set([...s, ...added.map((a) => a.id)]))
     const byAlbum = Object.entries(Object.groupBy(added, (a) => a.album))
     const id = Date.now()
     setToasts((t) => [
@@ -41,12 +42,18 @@ export default function App() {
   const player = usePlayer()
   const albums = library?.albums || []
 
-  // Track-level "fresh" ids: anything modified after the page opened.
+  // "New" tracks: added or modified after the page opened, until they are downloaded.
   const [openedAt] = useState(Date.now)
   const freshTracks = useMemo(
-    () => new Set(albums.flatMap((a) => a.tracks.filter((t) => t.mtime > openedAt).map((t) => t.id))),
-    [albums, openedAt]
+    () =>
+      new Set(
+        albums.flatMap((a) =>
+          a.tracks.filter((t) => (t.mtime > openedAt || addedIds.has(t.id)) && !downloaded.has(t.id)).map((t) => t.id)
+        )
+      ),
+    [albums, openedAt, addedIds, downloaded]
   )
+  const markDownloaded = useCallback((tracks) => setDownloaded((s) => new Set([...s, ...tracks.map((t) => t.id)])), [])
 
   useEffect(() => {
     const onHash = () => setOpenId(albumFromHash())
@@ -127,7 +134,7 @@ export default function App() {
 
       <main>
         {openAlbumData ? (
-          <AlbumView key={openAlbumData.id} album={openAlbumData} player={player} freshIds={freshTracks} onBack={() => openAlbum(null)} />
+          <AlbumView key={openAlbumData.id} album={openAlbumData} player={player} freshIds={freshTracks} onDownload={markDownloaded} onBack={() => openAlbum(null)} />
         ) : (
           <>
             <section className="hero">
@@ -179,7 +186,8 @@ export default function App() {
                   key={a.id}
                   album={a}
                   style={{ animationDelay: `${Math.min(i, 16) * 35}ms` }}
-                  isFresh={freshIds.has(a.id)}
+                  isFresh={a.tracks.some((t) => freshTracks.has(t.id))}
+                  onDownload={() => markDownloaded(a.tracks)}
                   isPlaying={playingAlbumId === a.id}
                   onOpen={() => openAlbum(a.id)}
                   onPlay={() => (playingAlbumId === a.id ? player.toggle() : player.playQueue(a.tracks, 0))}
@@ -190,7 +198,7 @@ export default function App() {
         )}
       </main>
 
-      <Player player={player} albums={albums} onOpenAlbum={openAlbum} />
+      <Player player={player} albums={albums} onOpenAlbum={openAlbum} onDownload={markDownloaded} />
 
       <div className="toasts">
         {toasts.map((t) => (

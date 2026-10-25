@@ -173,7 +173,7 @@ function scheduleRescan(reason) {
   rescanTimer = setTimeout(async () => {
     const before = new Set(library.albums.flatMap((a) => a.tracks.map((t) => t.id)))
     await scan()
-    const added = library.albums.flatMap((a) => a.tracks.filter((t) => !before.has(t.id)).map((t) => ({ album: a.name, name: t.name })))
+    const added = library.albums.flatMap((a) => a.tracks.filter((t) => !before.has(t.id)).map((t) => ({ id: t.id, album: a.name, name: t.name })))
     broadcast('library', { scannedAt: library.scannedAt, reason, added })
     console.log(`[dwnmusic] rescanned (${reason}) — ${added.length} new track(s)`)
   }, 350)

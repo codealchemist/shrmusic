@@ -3,7 +3,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Volume1, Download
 import Cover from './Cover.jsx'
 import { fileUrl, formatTime, prettyName } from '../lib.js'
 
-export default function Player({ player, albums, onOpenAlbum }) {
+export default function Player({ player, albums, onOpenAlbum, onDownload }) {
   const { current, playing, time, duration, volume } = player
   const canvasRef = useRef(null)
   const [scrub, setScrub] = useState(null)
@@ -81,7 +81,7 @@ export default function Player({ player, albums, onOpenAlbum }) {
           onChange={(e) => player.setVolume(Number(e.target.value))}
           aria-label="Volume"
         />
-        <a className="icon-btn" href={fileUrl(current.id, true)} title="Download this track" aria-label="Download this track">
+        <a className="icon-btn" href={fileUrl(current.id, true)} onClick={() => onDownload([current])} title="Download this track" aria-label="Download this track">
           <Download size={18} />
         </a>
       </div>

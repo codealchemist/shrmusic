@@ -2,7 +2,7 @@ import { Play, Pause, Download, FileAudio } from 'lucide-react'
 import Cover from './Cover.jsx'
 import { formatBytes, timeAgo, hues, zipUrl } from '../lib.js'
 
-export default function AlbumCard({ album, isPlaying, isFresh, onOpen, onPlay, style }) {
+export default function AlbumCard({ album, isPlaying, isFresh, onOpen, onPlay, onDownload, style }) {
   const [h] = hues(album.name)
   const empty = !album.tracks.length
   return (
@@ -19,7 +19,7 @@ export default function AlbumCard({ album, isPlaying, isFresh, onOpen, onPlay, s
         {isFresh && <span className="badge-new">New</span>}
         {!empty && (
           <div className="card-actions" onClick={(e) => e.stopPropagation()}>
-            <a className="icon-btn glass" href={zipUrl(album.id)} title="Download album (.zip)" aria-label="Download album">
+            <a className="icon-btn glass" href={zipUrl(album.id)} onClick={onDownload} title="Download album (.zip)" aria-label="Download album">
               <Download size={18} />
             </a>
             <button className={`play-fab ${isPlaying ? 'is-playing' : ''}`} onClick={onPlay} aria-label={isPlaying ? 'Pause' : 'Play album'}>

@@ -4,7 +4,7 @@ import Cover from './Cover.jsx'
 import Equalizer from './Equalizer.jsx'
 import { fileUrl, zipUrl, formatBytes, timeAgo, hues, prettyName, trackNo } from '../lib.js'
 
-export default function AlbumView({ album, player, freshIds, onBack }) {
+export default function AlbumView({ album, player, freshIds, onDownload, onBack }) {
   const [filter, setFilter] = useState('')
   const [h1, h2] = hues(album.name)
   const tracks = useMemo(() => {
@@ -55,7 +55,7 @@ export default function AlbumView({ album, player, freshIds, onBack }) {
               {albumPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
               {albumPlaying ? 'Pause' : inThisAlbum ? 'Resume' : 'Play all'}
             </button>
-            <a className={`btn btn-ghost ${album.tracks.length ? '' : 'disabled'}`} href={zipUrl(album.id)}>
+            <a className={`btn btn-ghost ${album.tracks.length ? '' : 'disabled'}`} href={zipUrl(album.id)} onClick={() => onDownload(album.tracks)}>
               <FolderArchive size={18} /> Download all
             </a>
             <label className="search search-sm">
@@ -111,7 +111,7 @@ export default function AlbumView({ album, player, freshIds, onBack }) {
                   <span className="chip">{t.ext}</span>
                   <span className="muted track-size">{formatBytes(t.size)}</span>
                   <span className="muted track-date">{timeAgo(t.mtime)}</span>
-                  <a className="icon-btn" href={fileUrl(t.id, true)} title={`Download ${t.file}`} aria-label={`Download ${t.file}`}>
+                  <a className="icon-btn" href={fileUrl(t.id, true)} onClick={() => onDownload([t])} title={`Download ${t.file}`} aria-label={`Download ${t.file}`}>
                     <Download size={17} />
                   </a>
                 </li>
