@@ -1,0 +1,5 @@
+node_modules
+dist
+music
+dwnmusic.config.json
+.DS_Store
