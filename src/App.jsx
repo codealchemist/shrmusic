@@ -105,7 +105,7 @@ export default function App() {
       <header className="topbar">
         <a className="brand" href="#" onClick={(e) => (e.preventDefault(), openAlbum(null))}>
           <Disc3 size={26} className={player.playing ? 'spin-slow' : ''} />
-          <span>dwn<b>music</b></span>
+          <span>shr<b>music</b></span>
         </a>
 
         <label className="search">

@@ -42,13 +42,13 @@ export function usePlayer() {
   const [playing, setPlaying] = useState(false)
   const [time, setTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [volume, setVolumeState] = useState(() => Number(safeGet('dwn.volume') ?? 0.8))
+  const [volume, setVolumeState] = useState(() => Number(safeGet('shr.volume') ?? 0.8))
   const [loop, setLoop] = useState(false)
   const current = queue[index] || null
 
   useEffect(() => {
     audio.volume = volume
-    safeSet('dwn.volume', volume)
+    safeSet('shr.volume', volume)
   }, [audio, volume])
 
   useEffect(() => {

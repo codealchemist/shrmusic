@@ -1,4 +1,4 @@
-# dwnmusic
+# shrmusic
 
 Browse, preview and download music from a folder of albums.
 
@@ -21,7 +21,7 @@ Both modes listen on all network interfaces, so other devices on your LAN can op
 
 ## Configuration
 
-Set the root folder and match from the settings button in the app, or edit `dwnmusic.config.json`:
+Set the root folder and match from the settings button in the app, or edit `shrmusic.config.json`:
 
 ```json
 {

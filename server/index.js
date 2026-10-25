@@ -8,7 +8,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const configFile = path.join(projectDir, 'dwnmusic.config.json')
+const configFile = path.join(projectDir, 'shrmusic.config.json')
 const PORT = Number(process.env.PORT) || 4321
 
 const AUDIO_EXT = new Set(['.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.oga', '.opus', '.aiff', '.aif', '.wma', '.webm'])
@@ -175,7 +175,7 @@ function scheduleRescan(reason) {
     await scan()
     const added = library.albums.flatMap((a) => a.tracks.filter((t) => !before.has(t.id)).map((t) => ({ id: t.id, album: a.name, name: t.name })))
     broadcast('library', { scannedAt: library.scannedAt, reason, added })
-    console.log(`[dwnmusic] rescanned (${reason}) — ${added.length} new track(s)`)
+    console.log(`[shrmusic] rescanned (${reason}) — ${added.length} new track(s)`)
   }, 350)
 }
 
@@ -189,7 +189,7 @@ async function startWatcher() {
     awaitWriteFinish: { stabilityThreshold: 800, pollInterval: 100 }
   })
   watcher.on('all', (event) => scheduleRescan(event))
-  watcher.on('error', (err) => console.error('[dwnmusic] watcher error', err))
+  watcher.on('error', (err) => console.error('[shrmusic] watcher error', err))
 }
 
 // ---------- http ----------
@@ -265,7 +265,7 @@ const lanAddresses = () =>
 
 app.listen(PORT, '0.0.0.0', () => {
   const label = process.env.NODE_ENV === 'production' ? 'app' : 'api'
-  console.log(`[dwnmusic] ${label} on http://localhost:${PORT}`)
-  for (const ip of lanAddresses()) console.log(`[dwnmusic] ${label} on http://${ip}:${PORT} (network)`)
-  console.log(`[dwnmusic] root: ${rootDir()}  match: ${config.match || '(all audio files)'}`)
+  console.log(`[shrmusic] ${label} on http://localhost:${PORT}`)
+  for (const ip of lanAddresses()) console.log(`[shrmusic] ${label} on http://${ip}:${PORT} (network)`)
+  console.log(`[shrmusic] root: ${rootDir()}  match: ${config.match || '(all audio files)'}`)
 })
