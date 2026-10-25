@@ -8,7 +8,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const configFile = path.join(projectDir, 'shrmusic.config.json')
+
+// Settings live in .env (see .env.example). Real environment variables win over the file.
+try {
+  process.loadEnvFile(path.join(projectDir, '.env'))
+} catch {}
+
 const PORT = Number(process.env.PORT) || 4321
 const { version } = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'))
 
@@ -18,22 +23,10 @@ const COVER_NAMES = ['cover', 'folder', 'front', 'album', 'artwork']
 
 // ---------- config ----------
 
-function loadConfig() {
-  let saved = {}
-  try {
-    saved = JSON.parse(fs.readFileSync(configFile, 'utf8'))
-  } catch {}
-  return {
-    root: process.env.MUSIC_ROOT || saved.root || path.join(projectDir, 'music'),
-    match: process.env.MUSIC_MATCH ?? saved.match ?? ''
-  }
-}
-
-let config = loadConfig()
-
-async function saveConfig(next) {
-  config = { ...config, ...next }
-  await fsp.writeFile(configFile, JSON.stringify(config, null, 2) + '\n')
+// Server-only: never sent to the browser.
+const config = {
+  root: process.env.MUSIC_ROOT || path.join(projectDir, 'music'),
+  match: process.env.MUSIC_MATCH || ''
 }
 
 const expandHome = (p) => (p.startsWith('~') ? path.join(process.env.HOME || '', p.slice(1)) : p)
@@ -118,7 +111,8 @@ async function scan() {
     // Hidden (.) and underscore (_) folders are not albums, e.g. a shared _mp3 export folder.
     dirs = (await fsp.readdir(root, { withFileTypes: true })).filter((d) => d.isDirectory() && !/^[._]/.test(d.name))
   } catch (err) {
-    library = { albums: [], scannedAt: Date.now(), error: `Cannot read ${root}: ${err.code || err.message}` }
+    console.error(`[shrmusic] cannot read ${root}: ${err.code || err.message}`)
+    library = { albums: [], scannedAt: Date.now(), error: 'The music folder could not be read. Check MUSIC_ROOT in .env.' }
     return library
   }
 
@@ -167,7 +161,6 @@ function broadcast(event, data) {
   for (const res of clients) res.write(msg)
 }
 
-let watcher = null
 let rescanTimer = null
 function scheduleRescan(reason) {
   clearTimeout(rescanTimer)
@@ -181,10 +174,9 @@ function scheduleRescan(reason) {
 }
 
 async function startWatcher() {
-  await watcher?.close()
   const root = rootDir()
   if (!fs.existsSync(root)) return
-  watcher = chokidar.watch(root, {
+  const watcher = chokidar.watch(root, {
     ignoreInitial: true,
     ignored: (p) => path.basename(p).startsWith('.') && p !== root,
     awaitWriteFinish: { stabilityThreshold: 800, pollInterval: 100 }
@@ -196,7 +188,6 @@ async function startWatcher() {
 // ---------- http ----------
 
 const app = express()
-app.use(express.json())
 
 // Resolve a "<album>/<path>" id to an absolute path, refusing anything outside the root.
 function resolveInRoot(rel) {
@@ -206,19 +197,7 @@ function resolveInRoot(rel) {
   return abs
 }
 
-app.get('/api/config', (_req, res) => res.json({ ...config, resolvedRoot: rootDir() }))
-
-app.put('/api/config', async (req, res) => {
-  const { root, match } = req.body || {}
-  if (typeof root !== 'string' || !root.trim()) return res.status(400).json({ error: 'root is required' })
-  await saveConfig({ root: root.trim(), match: typeof match === 'string' ? match : '' })
-  await scan()
-  await startWatcher()
-  broadcast('library', { scannedAt: library.scannedAt, reason: 'config', added: [] })
-  res.json({ ...config, resolvedRoot: rootDir(), error: library.error })
-})
-
-app.get('/api/library', (_req, res) => res.json({ ...library, root: rootDir(), match: config.match }))
+app.get('/api/library', (_req, res) => res.json(library))
 
 app.get('/api/file', (req, res) => {
   const abs = resolveInRoot(req.query.path)

@@ -12,6 +12,7 @@ Browse, preview and download music from a folder of albums.
 ```bash
 npm install
 npm run demo   # optional: generates a few demo albums in ./music
+cp .env.example .env  # then set MUSIC_ROOT and MUSIC_MATCH
 npm run dev    # API on :4321, UI on http://localhost:5173
 ```
 
@@ -21,16 +22,19 @@ Both modes listen on all network interfaces, so other devices on your LAN can op
 
 ## Configuration
 
-Set the root folder and match from the settings button in the app, or edit `shrmusic.config.json`:
+Settings live in a `.env` file on the server (gitignored). Copy the example and edit it:
 
-```json
-{
-  "root": "~/Music/Projects",
-  "match": "mp3/parts/"
-}
+```bash
+cp .env.example .env
 ```
 
-Relative roots resolve against the project folder. `MUSIC_ROOT`, `MUSIC_MATCH` and `PORT` environment variables override the file.
+```bash
+MUSIC_ROOT=~/Music/Projects
+MUSIC_MATCH=mp3/parts/
+PORT=4321
+```
+
+These values stay on the server: the browser never sees the folder path or the match, and there is no way to change them from the UI. Relative roots resolve against the project folder. Real environment variables take precedence over `.env`. In dev, editing `.env` restarts the API server.
 
 Match patterns are relative to each album folder:
 
@@ -39,7 +43,7 @@ Match patterns are relative to each album folder:
 | *(empty)* | every audio file in the album |
 | `mp3/parts/` | audio files anywhere under `mp3/parts/` |
 | `**/parts/` | any `parts/` folder at any depth |
-| `stems/, bounces/` | several folders (comma or newline separated) |
+| `stems/, bounces/` | several folders (comma separated) |
 | `*.mp3` | mp3 files at the top of the album |
 
 Album covers are picked from images in the album (`cover`, `folder`, `front`… first); otherwise a cover is generated from the album name.

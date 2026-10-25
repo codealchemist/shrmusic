@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Disc3, Search, Settings2, RefreshCw, ArrowDownAZ, Clock3, FolderSearch, Sparkles, X } from 'lucide-react'
+import { Disc3, Search, RefreshCw, ArrowDownAZ, Clock3, FolderSearch, Sparkles, X } from 'lucide-react'
 import { useLibrary, usePlayer } from './hooks.js'
 import { formatBytes } from './lib.js'
 import AlbumCard from './components/AlbumCard.jsx'
 import AlbumView from './components/AlbumView.jsx'
 import Player from './components/Player.jsx'
-import Settings from './components/Settings.jsx'
 
 const albumFromHash = () => {
   const m = location.hash.match(/^#\/album\/(.+)$/)
@@ -19,9 +18,7 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState('name')
   const [openId, setOpenId] = useState(albumFromHash)
-  const [showSettings, setShowSettings] = useState(false)
   const searchRef = useRef(null)
-  const closeSettings = useCallback(() => setShowSettings(false), [])
 
   const onAdded = useCallback((added) => {
     setAddedIds((s) => new Set([...s, ...added.map((a) => a.id)]))
@@ -129,7 +126,6 @@ export default function App() {
             <i /> {live ? 'Live' : 'Offline'}
           </span>
           <button className="icon-btn" onClick={reload} title="Refresh" aria-label="Refresh"><RefreshCw size={18} /></button>
-          <button className="icon-btn" onClick={() => setShowSettings(true)} title="Settings" aria-label="Settings"><Settings2 size={18} /></button>
         </div>
       </header>
 
@@ -143,11 +139,6 @@ export default function App() {
                 <h1>Your library</h1>
                 <p className="muted">
                   {albums.length} albums · {totals.tracks} tracks · {formatBytes(totals.size)}
-                  {library?.match && (
-                    <>
-                      {' '}· matching <code>{library.match}</code>
-                    </>
-                  )}
                 </p>
               </div>
               <div className="segmented" role="tablist">
@@ -161,7 +152,6 @@ export default function App() {
                 <FolderSearch size={42} />
                 <h3>Can’t read the music folder</h3>
                 <p className="muted">{library.error}</p>
-                <button className="btn btn-primary" onClick={() => setShowSettings(true)}>Open settings</button>
               </div>
             )}
 
@@ -170,7 +160,7 @@ export default function App() {
                 <FolderSearch size={42} />
                 <h3>{query ? 'Nothing matches your search' : 'No albums yet'}</h3>
                 <p className="muted">
-                  {query ? 'Try a different name.' : <>Drop folders into <code>{library.root}</code> — they’ll appear here instantly.</>}
+                  {query ? 'Try a different name.' : 'New albums appear here as soon as they’re added to the music folder.'}
                 </p>
               </div>
             )}
@@ -213,7 +203,6 @@ export default function App() {
         ))}
       </div>
 
-      {showSettings && <Settings onClose={closeSettings} onSaved={reload} />}
     </div>
   )
 }

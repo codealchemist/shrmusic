@@ -1,5 +1,5 @@
 node_modules
 dist
 music
-shrmusic.config.json
+.env
 .DS_Store
