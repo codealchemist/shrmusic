@@ -17,6 +17,8 @@ npm run dev    # API on :4321, UI on http://localhost:5173
 
 Production: `npm run build && npm start` serves the built UI and API on http://localhost:4321.
 
+Both modes listen on all network interfaces, so other devices on your LAN can open the app. The network URLs are printed on startup (e.g. `http://192.168.x.x:5173`). On first run, macOS may ask whether to allow incoming connections for `node`.
+
 ## Configuration
 
 Set the root folder and match from the settings button in the app, or edit `dwnmusic.config.json`:

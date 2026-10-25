@@ -3,6 +3,7 @@ import chokidar from 'chokidar'
 import { ZipArchive } from 'archiver'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -255,7 +256,15 @@ if (process.env.NODE_ENV === 'production' && fs.existsSync(dist)) {
 
 await scan()
 await startWatcher()
-app.listen(PORT, () => {
-  console.log(`[dwnmusic] api on http://localhost:${PORT}`)
+const lanAddresses = () =>
+  Object.values(os.networkInterfaces())
+    .flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+    .map((i) => i.address)
+
+app.listen(PORT, '0.0.0.0', () => {
+  const label = process.env.NODE_ENV === 'production' ? 'app' : 'api'
+  console.log(`[dwnmusic] ${label} on http://localhost:${PORT}`)
+  for (const ip of lanAddresses()) console.log(`[dwnmusic] ${label} on http://${ip}:${PORT} (network)`)
   console.log(`[dwnmusic] root: ${rootDir()}  match: ${config.match || '(all audio files)'}`)
 })
