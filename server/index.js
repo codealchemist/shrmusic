@@ -114,7 +114,8 @@ async function scan() {
   const m = matcher(config.match)
   let dirs
   try {
-    dirs = (await fsp.readdir(root, { withFileTypes: true })).filter((d) => d.isDirectory() && !d.name.startsWith('.'))
+    // Hidden (.) and underscore (_) folders are not albums, e.g. a shared _mp3 export folder.
+    dirs = (await fsp.readdir(root, { withFileTypes: true })).filter((d) => d.isDirectory() && !/^[._]/.test(d.name))
   } catch (err) {
     library = { albums: [], scannedAt: Date.now(), error: `Cannot read ${root}: ${err.code || err.message}` }
     return library

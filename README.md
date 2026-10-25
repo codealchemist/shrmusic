@@ -2,7 +2,7 @@
 
 Browse, preview and download music from a folder of albums.
 
-- Every folder directly inside the **root folder** becomes an album card.
+- Every folder directly inside the **root folder** becomes an album card (folders starting with `_` or `.` are skipped).
 - A **folder match** picks which audio files to list inside each album, e.g. `mp3/parts/` lists every audio file under `<album>/mp3/parts/` (recursively).
 - Preview tracks in the browser, download single files or a whole album as a zip.
 - The server watches the root folder; new or changed files show up in the UI instantly.
