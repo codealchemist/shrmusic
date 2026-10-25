@@ -1,6 +1,6 @@
 {
   "name": "shrmusic",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Browse, preview and download music from a folder of albums.",
